@@ -47,7 +47,7 @@ def get_data():
 
     products_data = []
     for page in range(1, pages_count + 1):
-        # for page in range(33,34):
+        # for page in range(5, 6):
         url = f"https://ultra.md/ru/promo/products?page={page}"
 
         response = requests.get(url=url, headers=headers)
@@ -65,17 +65,17 @@ def get_data():
 
             if product_data_sale is None:
                 try:
-                    product_title = product_data[0].find_all('a')[-1].text.strip()
+                    product_title = product_data[0].find_all('a')[-1].text.strip().replace("ö", "o").replace("Wi‑Fi", "WiFi")
                 except:
                     product_title = "No data available!"
 
                 try:
                     if len(product_data) == 23:
                         product_discount = product_data[14].find('div', class_="relative w-full").find_all('span')[
-                            1].text
+                            1].text.replace("лей", "No discount!")
                     elif len(product_data) == 25:
                         product_discount = product_data[16].find('div', class_="relative w-full").find_all('span')[
-                            1].text
+                            1].text.replace("лей", "No discount!")
                     else:
                         product_discount = product_data[12].find('div', class_="relative w-full").find_all('span')[
                             1].text.replace("лей", "No discount!")
@@ -109,14 +109,6 @@ def get_data():
                 except:
                     product_link = "No data available!"
 
-                # print(product_title)
-                # print(product_discount)
-                # print(product_price)
-                # print(product_link)
-                # print(product_data_sale)
-                # print(len(product_data))
-                # print("*"*10)
-
                 products_data.append(
                     {
                         "Title": product_title,
@@ -125,30 +117,46 @@ def get_data():
                         "URL-LINK": product_link
                     }
                 )
+                try:
+                    with open(f"Товары по Акции_{cur_time}.csv", "a", encoding="cp1251", newline="") as file:
+                        writer = csv.writer(file, delimiter=";")
+
+                        writer.writerow(
+                            (
+                                product_title,
+                                product_discount,
+                                product_price,
+                                product_link
+                            )
+                        )
+                except Exception as err:
+                    print(err)
             else:
                 products_data.append(
                     {
                         "Title": product_data_sale,
                         "Discount": product_data_sale,
-                        "Price": product_data_sale,
+                        "Price": product_price,
                         "URL-LINK": product_link
                     }
                 )
+                try:
+                    with open(f"Товары по Акции_{cur_time}.csv", "a", encoding="cp1251", newline="") as file:
+                        writer = csv.writer(file, delimiter=";")
 
-            with open(f"Товары по Акции_{cur_time}.csv", "a", encoding="cp1251", newline="") as file:
-                writer = csv.writer(file, delimiter=";")
-
-                writer.writerow(
-                    (
-                        product_title,
-                        product_discount,
-                        product_price,
-                        product_link
-                    )
-                )
+                        writer.writerow(
+                            (
+                                product_title,
+                                product_data_sale,
+                                product_price,
+                                product_link
+                            )
+                        )
+                except Exception as err:
+                    print(err)
 
         print(f"Обработана {page} / {pages_count}")
-        time.sleep(1)
+        time.sleep(2)
 
     with open(f"Товары по Акции_{cur_time}.json", "w", encoding="utf-8") as file:
         json.dump(products_data, file, indent=4, ensure_ascii=False)
