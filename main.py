@@ -44,7 +44,7 @@ def get_data():
     pages_count = int(
         soup.find('nav', attrs={"aria-label": "Pagination Navigation"}).find_all('div')[-1].find_all('span')[-1].text)
 
-    products_data = []
+    # products_data = []
     for page in range(1, pages_count + 1):
     # for page in range(1, 2):
         url = f"https://ultra.md/ru/promo/products?page={page}"
@@ -69,7 +69,13 @@ def get_data():
                 product_title = product_data[0].find_all('a')[-1].text.strip().replace("ö", "o").replace("Wi‑Fi",
                                                                                                          "WiFi")
             except:
-                product_title = "No data available!"
+                product_title = "No data available!"            
+
+            # ---------------Product price
+            try:
+                product_price = int(product_data[14].find('span', class_="text-xl").text.strip().replace(" ", "").replace("\nлей", " "))
+            except:
+                product_price = "No data!"
 
             # ---------------Product discount
             product_sold_out = pi.parent.find("span", string="Распродано")  
@@ -77,23 +83,10 @@ def get_data():
                 product_discount = product_sold_out.text
             else:
                 try:
-                    if len(product_data) == 23:
-                        product_discount = product_data[14].find('div', class_="relative w-full").find_all('span')[
-                            1].text.replace("лей", "No discount!")
-                    elif len(product_data) == 25:
-                        product_discount = product_data[16].find('div', class_="relative w-full").find_all('span')[
-                            1].text.replace("лей", "No discount!")
-                    else:
-                        product_discount = product_data[12].find('div', class_="relative w-full").find_all('span')[
-                            1].text.replace("лей", "No discount!")
+                    product_old_price = int(pi.find('div', class_="relative w-full").find("span", class_="line-through").text.strip().replace(" ", "").replace("\nлей", " "))
+                    product_discount = f"{round(((product_old_price-product_price)/product_old_price)*100)} %"
                 except:
                     product_discount = "No discount!"
-
-            # ---------------Product price
-            try:
-                product_price = product_data[14].find('span', class_="text-xl").text.strip().replace(" ", "").replace("\nлей", " ")
-            except:
-                product_price = "No data!"
 
             # ---------------Product link
             try:
@@ -101,32 +94,32 @@ def get_data():
             except:
                 product_link = "No data available!"
 
-            products_data.append(
-                {
-                    "Title": product_title,
-                    "Discount": product_discount,
-                    "Price": product_price,
-                    "URL-LINK": product_link
-                }
-            )
+            # products_data.append(
+            #     {
+            #         "Title": product_title,
+            #         "Discount": product_discount,
+            #         "Price": product_price,
+            #         "URL-LINK": product_link
+            #     }
+            # )
             # print(len(product_data))
-            # print(product_price)            
-            # print(product_discount)
+            # print(product_price) 
+            # print(product_old_price)           
+            # print(product_discount) 
+            # print("*"*10)           
 
-            try:
-                with open(f"Товары по Акции_{cur_time}.csv", "a", encoding="cp1251", newline="") as file:
-                    writer = csv.writer(file, delimiter=";")
+           
+            with open(f"Товары по Акции_{cur_time}.csv", "a", encoding="cp1251", newline="") as file:
+                writer = csv.writer(file, delimiter=";")
 
-                    writer.writerow(
-                        (
-                            product_title,
-                            product_discount,
-                            product_price,
-                            product_link
-                        )
+                writer.writerow(
+                    (
+                        product_title,
+                        product_discount,
+                        product_price,
+                        product_link
                     )
-            except Exception as err:
-                print(err)
+                )
 
         print(f"Обработана {page} / {pages_count}")
         time.sleep(2)
