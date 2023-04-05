@@ -10,19 +10,19 @@ start_time = time.time()
 
 
 def get_data():
-    # cur_time = datetime.datetime.now().strftime("%d_%m_%Y %H_%M")
+    cur_time = datetime.datetime.now().strftime("%d_%m_%Y %H_%M")
 
-    # with open(f"Товары по Акции_{cur_time}.csv", "w", encoding="cp1251", newline="") as file:
-    #     writer = csv.writer(file, delimiter=";")
+    with open(f"Товары по Акции_{cur_time}.csv", "w", encoding="cp1251", newline="") as file:
+        writer = csv.writer(file, delimiter=";")
 
-    #     writer.writerow(
-    #         {
-    #             "Продукт",
-    #             "Скидка",
-    #             "Цена",
-    #             "Ссылка"
-    #         }
-    #     )
+        writer.writerow(
+            {
+                "Продукт",
+                "Скидка",
+                "Цена",
+                "Ссылка"
+            }
+        )
 
     headers = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
@@ -45,8 +45,8 @@ def get_data():
         soup.find('nav', attrs={"aria-label": "Pagination Navigation"}).find_all('div')[-1].find_all('span')[-1].text)
 
     products_data = []
-    # for page in range(1, pages_count + 1):
-    for page in range(1, 2):
+    for page in range(1, pages_count + 1):
+    # for page in range(1, 2):
         url = f"https://ultra.md/ru/promo/products?page={page}"
 
         response = requests.get(url=url, headers=headers)
@@ -110,23 +110,23 @@ def get_data():
                 }
             )
             # print(len(product_data))
-            print(product_price)            
+            # print(product_price)            
             # print(product_discount)
 
-            # try:
-            #     with open(f"Товары по Акции_{cur_time}.csv", "a", encoding="cp1251", newline="") as file:
-            #         writer = csv.writer(file, delimiter=";")
+            try:
+                with open(f"Товары по Акции_{cur_time}.csv", "a", encoding="cp1251", newline="") as file:
+                    writer = csv.writer(file, delimiter=";")
 
-            #         writer.writerow(
-            #             (
-            #                 product_title,
-            #                 product_discount,
-            #                 product_price,
-            #                 product_link
-            #             )
-            #         )
-            # except Exception as err:
-            #     print(err)
+                    writer.writerow(
+                        (
+                            product_title,
+                            product_discount,
+                            product_price,
+                            product_link
+                        )
+                    )
+            except Exception as err:
+                print(err)
 
         print(f"Обработана {page} / {pages_count}")
         time.sleep(2)
