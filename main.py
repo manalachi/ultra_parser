@@ -14,14 +14,13 @@ def get_data():
 
     with open(f"Товары по Акции_{cur_time}.csv", "w", encoding="cp1251", newline="") as file:
         writer = csv.writer(file, delimiter=";")
-
         writer.writerow(
-            {
+            (
                 "Продукт",
                 "Скидка",
                 "Цена",
                 "Ссылка"
-            }
+            )
         )
 
     headers = {
@@ -46,7 +45,7 @@ def get_data():
 
     # products_data = []
     for page in range(1, pages_count + 1):
-    # for page in range(1, 2):
+        # for page in range(1, 2):
         url = f"https://ultra.md/ru/promo/products?page={page}"
 
         response = requests.get(url=url, headers=headers)
@@ -62,18 +61,18 @@ def get_data():
         products_items = soup.find('div', class_="products-list").find_all('div', class_="product-block-card-container")
 
         for pi in products_items:
-            product_data = pi.find_all('div')              
+            product_data = pi.find('div').find_next_sibling("div")
 
             # ---------------Product title
             try:
-                product_title = product_data[0].find_all('a')[-1].text.strip().replace("ö", "o").replace("Wi‑Fi",
+                product_title = pi.find("div").find_all('a')[-1].text.strip().replace("ö", "o").replace("Wi‑Fi",
                                                                                                          "WiFi")
             except:
                 product_title = "No data available!"            
 
             # ---------------Product price
             try:
-                product_price = int(product_data[14].find('span', class_="text-xl").text.strip().replace(" ", "").replace("\nлей", " "))
+                product_price = int(product_data.find('span', class_="text-xl").text.strip().replace(" ", "").replace("\nлей", " "))
             except:
                 product_price = "No data!"
 
@@ -83,14 +82,14 @@ def get_data():
                 product_discount = product_sold_out.text
             else:
                 try:
-                    product_old_price = int(pi.find('div', class_="relative w-full").find("span", class_="line-through").text.strip().replace(" ", "").replace("\nлей", " "))
+                    product_old_price = int(product_data.find("span", class_="line-through").text.strip().replace(" ", "").replace("\nлей", " "))
                     product_discount = f"{round(((product_old_price-product_price)/product_old_price)*100)} %"
                 except:
                     product_discount = "No discount!"
 
             # ---------------Product link
             try:
-                product_link = product_data[0].find_all('a')[-1].get('href')
+                product_link = pi.find("div").find_all('a')[-1].get('href')
             except:
                 product_link = "No data available!"
 
@@ -103,11 +102,10 @@ def get_data():
             #     }
             # )
             # print(len(product_data))
-            # print(product_price) 
-            # print(product_old_price)           
-            # print(product_discount) 
-            # print("*"*10)           
-
+            # print(product_price)
+            # print(product_old_price)
+            # print(product_discount)
+            # print("*"*10)
            
             with open(f"Товары по Акции_{cur_time}.csv", "a", encoding="cp1251", newline="") as file:
                 writer = csv.writer(file, delimiter=";")
