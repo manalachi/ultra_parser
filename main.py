@@ -129,7 +129,7 @@ def get_data():
 def main():
     get_data()
     finish_time = time.time() - start_time
-    print(f"Затраченно на работу скрипта времени: {finish_time}")
+    print(f"Затраченно на работу скрипта времени: {round(finish_time, 2)}")
 
 
 if __name__ == "__main__":
